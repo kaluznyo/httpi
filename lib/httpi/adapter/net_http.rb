@@ -17,6 +17,8 @@ module HTTPI
       register :net_http, :deps => %w(net/https)
 
       def initialize(request)
+        p "NetHTTP::initialize"
+        
         @request = request
         @client = create_client
       end
@@ -26,6 +28,8 @@ module HTTPI
       # Executes arbitrary HTTP requests.
       # @see HTTPI.request
       def request(method)
+        p "NetHTTP::request"
+        
         unless REQUEST_METHODS.include? method
           raise NotSupportedError, "Net::HTTP does not support custom HTTP methods"
         end
@@ -52,12 +56,16 @@ module HTTPI
       private
 
       def create_client
+        p "NetHTTP::create_client"
+        
         proxy_url = @request.proxy || URI("")
         proxy = Net::HTTP::Proxy(proxy_url.host, proxy_url.port, proxy_url.user, proxy_url.password)
         proxy.new(@request.url.host, @request.url.port)
       end
 
       def do_request(type, &requester)
+        p "NetHTTP::do_request"
+        
         setup_client
         setup_ssl_auth if @request.auth.ssl?
 
@@ -69,6 +77,8 @@ module HTTPI
       end
 
       def negotiate_ntlm_auth(http, &requester)
+        p "NetHTTP::negotiate_ntlm_auth"
+        
         # first call request is to authenticate (exchange secret and auth)...
         ntlm_message_type1 = Net::NTLM::Message::Type1.new
         @request.headers["Authorization"] = "NTLM #{ntlm_message_type1.encode64}"
@@ -89,12 +99,16 @@ module HTTPI
       end
 
       def setup_client
+        p "NetHTTP::setup_client"
+        
         @client.use_ssl = @request.ssl?
         @client.open_timeout = @request.open_timeout if @request.open_timeout
         @client.read_timeout = @request.read_timeout if @request.read_timeout
       end
 
       def setup_ssl_auth
+        p "NetHTTP::setup_ssl_auth"
+        
         ssl = @request.auth.ssl
 
         unless ssl.verify_mode == :none
@@ -110,6 +124,8 @@ module HTTPI
       end
 
       def request_client(type)
+        p "NetHTTP::request_client"
+        
         request_class = case type
           when :get    then Net::HTTP::Get
           when :post   then Net::HTTP::Post
@@ -125,6 +141,8 @@ module HTTPI
       end
 
       def respond_with(response)
+        p "NetHTTP::respond_with"
+        
         headers = response.to_hash
         headers.each do |key, value|
           headers[key] = value[0] if value.size <= 1

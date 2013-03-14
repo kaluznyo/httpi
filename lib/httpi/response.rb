@@ -17,6 +17,7 @@ module HTTPI
 
     # Initializer expects an HTTP response +code+, +headers+ and +body+.
     def initialize(code, headers, body)
+      p "Response::initialize"
       self.code = code.to_i
       self.headers = Rack::Utils::HeaderHash.new(headers)
       self.raw_body = body
@@ -26,27 +27,37 @@ module HTTPI
 
     # Returns whether the HTTP response is considered successful.
     def error?
+      p "Response::error?"
+    
       !SuccessfulResponseCodes.include? code.to_i
     end
 
     # Returns whether the HTTP response is a multipart response.
     def multipart?
+      p "Response::multipart?"
+      
       !!(headers["Content-Type"] =~ /^multipart/i)
     end
 
     # Returns a list of cookies from the response.
     def cookies
+      p "Response::cookies"
+      
       @cookies ||= Cookie.list_from_headers(headers)
     end
 
     # Returns any DIME attachments.
     def attachments
+      p "Response::attachments"
+      
       decode_body unless @body
       @attachments ||= []
     end
 
     # Returns the HTTP response body.
     def body
+      p "Response::body"
+      
       decode_body unless @body
       @body
     end
@@ -56,6 +67,8 @@ module HTTPI
     private
 
     def decode_body
+      p "Response::decode_body"
+      
       return @body = "" if !raw_body || raw_body.empty?
 
       body = gzipped_response? ? decoded_gzip_body : raw_body
@@ -64,16 +77,22 @@ module HTTPI
 
     # Returns whether the response is gzipped.
     def gzipped_response?
+      p "Response::gzipped_response?"
+      
       headers["Content-Encoding"] == "gzip"
     end
 
     # Returns whether this is a DIME response.
     def dime_response?
+      p "Response::dime_response?"
+      
       headers["Content-Type"] == "application/dime"
     end
 
     # Returns the gzip decoded response body.
     def decoded_gzip_body
+      p "Response::decoded_gzip_body"
+      
       unless gzip = Zlib::GzipReader.new(StringIO.new(raw_body))
         raise ArgumentError, "Unable to create Zlib::GzipReader"
       end
@@ -84,6 +103,8 @@ module HTTPI
 
     # Returns the DIME decoded response body.
     def decoded_dime_body(body = nil)
+      p "Response::decoded_dime_body"
+      
       dime = Dime.new(body || raw_body)
       self.attachments = dime.binary_records
       dime.xml_records.first.data

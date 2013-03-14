@@ -11,6 +11,7 @@ module HTTPI
     XML = 2
 
     def initialize(body)
+      p "Dime::initialize"
       bytes = body.unpack('C*')
 
       while bytes.length > 0
@@ -27,6 +28,8 @@ module HTTPI
 
     # Shift out bitfields for the first fields.
     def configure_record(record, bytes)
+      p "Dime::configure_record"
+      
       byte = bytes.shift
 
       record.version     = (byte >> 3) & 31         # 5 bits  DIME format version (always 1)
@@ -39,6 +42,8 @@ module HTTPI
 
     # Fetch big-endian lengths.
     def big_endian_lengths(bytes)
+      p "Dime::big_endian_lengths"
+      
       lengths = [] # we can't use a hash since the order will be screwed in Ruby 1.8
       lengths << [:options, (bytes.shift << 8) | bytes.shift]                                             # 2 bytes   Length of the "options" field
       lengths << [:id,      (bytes.shift << 8) | bytes.shift]                                             # 2 bytes   Length of the "ID" or "name" field
@@ -49,6 +54,8 @@ module HTTPI
 
     # Read in padded data.
     def read_data(record, bytes, attribute_set)
+      p "Dime::read_data"
+      
       attribute, length = attribute_set
       content = bytes.slice!(0, length).pack('C*')
 
@@ -61,10 +68,14 @@ module HTTPI
     end
 
     def xml_records
+      p "Dime::xml_records"
+      
       select { |r| r.type_format == XML }
     end
 
     def binary_records
+      p "Dime::binary_records"
+      
       select { |r| r.type_format == BINARY }
     end
 

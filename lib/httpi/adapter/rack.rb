@@ -28,15 +28,21 @@ module HTTPI
       # Attaches Rack endpoint at specified host.
       # Endpoint will be acessible at {http://host/ http://host/} url.
       def self.mount(host, application)
+        p "Rack:mount"
+        
         self.mounted_apps[host] = application
       end
 
       # Removes Rack endpoint.
       def self.unmount(host)
+        p "Rack:unmount"
+        
         self.mounted_apps.delete(host)
       end
 
       def initialize(request)
+        p "Rack:initialize"
+        
         @app = self.class.mounted_apps[request.url.host]
 
 
@@ -57,6 +63,8 @@ module HTTPI
       # @see .mount
       # @see HTTPI.request
       def request(method)
+        p "Rack:request"
+        
         unless REQUEST_METHODS.include? method
           raise NotSupportedError, "Rack adapter does not support custom HTTP methods"
         end

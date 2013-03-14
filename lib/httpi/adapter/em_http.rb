@@ -32,6 +32,7 @@ module HTTPI
       register :em_http, :deps => %w(em-synchrony em-synchrony/em-http em-http)
 
       def initialize(request)
+        p "EMHttpRequest::initialize"
         @request = request
         @client = EventMachine::HttpRequest.new build_request_url(request.url)
       end
@@ -39,6 +40,8 @@ module HTTPI
       attr_reader :client
 
       def cert_directory
+        p "EMHttpRequest::cert_directory"
+        
         @cert_directory ||= "/tmp"
       end
 
@@ -47,12 +50,16 @@ module HTTPI
       # Executes arbitrary HTTP requests.
       # @see HTTPI.request
       def request(method)
+        p "EMHttpRequest::request"
+        
         _request { |options| @client.send method, options }
       end
 
       private
 
       def _request
+        p "EMHttpRequest::_request"
+        
         options = client_options
         setup_proxy(options) if @request.proxy
         setup_http_auth(options) if @request.auth.http?
@@ -70,6 +77,8 @@ module HTTPI
       end
 
       def client_options
+        p "EMHttpRequest::client_options"
+        
         {
           :query              => @request.url.query,
           :connect_timeout    => @request.open_timeout,
@@ -80,6 +89,8 @@ module HTTPI
       end
 
       def setup_proxy(options)
+        p "EMHttpRequest::setup_proxy"
+        
         options[:proxy] = {
           :host          => @request.proxy.host,
           :port          => @request.proxy.port,
@@ -88,6 +99,8 @@ module HTTPI
       end
 
       def setup_http_auth(options)
+        p "EMHttpRequest::setup_http_auth"
+        
         unless @request.auth.type == :basic
           raise NotSupportedError, "EM-HTTP-Request does only support HTTP basic auth"
         end
@@ -97,6 +110,8 @@ module HTTPI
       end
 
       def respond_with(http, start_time)
+        p "EMHttpRequest::respond_with"
+        
         raise TimeoutError, "EM-HTTP-Request connection timed out: #{Time.now - start_time} sec" if http.response_header.status.zero?
 
         Response.new http.response_header.status,
@@ -104,6 +119,8 @@ module HTTPI
       end
 
       def build_request_url(url)
+        p "EMHttpRequest::build_request_url"
+        
         "%s://%s:%s%s" % [url.scheme, url.host, url.port, url.path]
       end
 
@@ -112,6 +129,8 @@ module HTTPI
       #
       # E.g. CONTENT_TYPE becomes Content-Type.
       def convert_headers(headers)
+        p "EMHttpRequest::convert_headers"
+        
         return headers unless headers.keys.any? { |k| k =~ /_/ }
 
         result = {}

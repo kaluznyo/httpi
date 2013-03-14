@@ -12,21 +12,28 @@ module HTTPI
 
       # Registers an adapter.
       def self.register(name, options = {})
+        p "Base:register"
         deps = options.fetch(:deps, [])
         Adapter.register(name, self, deps)
       end
 
       def initialize(request)
+        p "Base:initialize"
+        
       end
 
       # Returns a client instance.
       def client
+        p "Base:client"
+        
         raise NotImplementedError, "Adapters need to implement a #client method"
       end
 
       # Executes arbitrary HTTP requests.
       # @see HTTPI.request
       def request(method)
+        p "Base:request"
+        
         raise NotImplementedError, "Adapters need to implement a #request method"
       end
 

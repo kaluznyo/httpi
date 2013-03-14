@@ -13,6 +13,7 @@ module HTTPI
       register :httpclient, :deps => %w(httpclient)
 
       def initialize(request)
+        p "HTTPClient::initialize"
         @request = request
         @client = ::HTTPClient.new
       end
@@ -22,6 +23,8 @@ module HTTPI
       # Executes arbitrary HTTP requests.
       # @see HTTPI.request
       def request(method)
+        p "HTTPClient::request"
+        
         setup_client
         respond_with @client.request(method, @request.url, nil, @request.body, @request.headers, &@request.on_body)
       rescue OpenSSL::SSL::SSLError
@@ -34,22 +37,30 @@ module HTTPI
       private
 
       def setup_client
+        p "HTTPClient::setup_client"
+        
         basic_setup
         setup_auth if @request.auth.http?
         setup_ssl_auth if @request.auth.ssl?
       end
 
       def basic_setup
+        p "HTTPClient::basic_setup"
+        
         @client.proxy = @request.proxy if @request.proxy
         @client.connect_timeout = @request.open_timeout if @request.open_timeout
         @client.receive_timeout = @request.read_timeout if @request.read_timeout
       end
 
       def setup_auth
+        p "HTTPClient::setup_auth"
+        
         @client.set_auth @request.url, *@request.auth.credentials
       end
 
       def setup_ssl_auth
+        p "HTTPClient::setup_ssl_auth"
+        
         ssl = @request.auth.ssl
 
         unless ssl.verify_mode == :none
@@ -65,6 +76,8 @@ module HTTPI
       end
 
       def respond_with(response)
+        p "HTTPClient::respond_with"
+        
         headers = {}
         response.header.all.each do |(header, value)|
           if headers.key?(header)

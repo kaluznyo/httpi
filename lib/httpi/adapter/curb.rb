@@ -13,6 +13,8 @@ module HTTPI
       register :curb, :deps => %w(curb)
 
       def initialize(request)
+        p "Curb:initialize"
+        
         @request = request
         @client = Curl::Easy.new
       end
@@ -20,6 +22,8 @@ module HTTPI
       attr_reader :client
 
       def request(method)
+        p "Curb:request"
+        
         unless REQUEST_METHODS.include? method
           raise NotSupportedError, "Curb does not support custom HTTP methods"
         end
@@ -44,12 +48,16 @@ module HTTPI
       private
 
       def do_request
+        p "Curb:do_request"
+        
         setup_client
         yield @client
         respond_with @client
       end
 
       def setup_client
+        p "Curb:setup_client"
+        
         basic_setup
         setup_http_auth if @request.auth.http?
         setup_gssnegotiate_auth if @request.auth.gssnegotiate?
@@ -57,6 +65,8 @@ module HTTPI
       end
 
       def basic_setup
+        p "Curb:basic_setup"
+        
         @client.url = @request.url.to_s
         @client.proxy_url = @request.proxy.to_s if @request.proxy
         @client.timeout = @request.read_timeout if @request.read_timeout
@@ -66,11 +76,15 @@ module HTTPI
       end
 
       def setup_http_auth
+        p "Curb:setup_http_auth"
+        
         @client.http_auth_types = @request.auth.type
         @client.username, @client.password = *@request.auth.credentials
       end
 
       def setup_gssnegotiate_auth
+        p "Curb:setup_gssnegotiate_auth"
+        
         @client.http_auth_types = @request.auth.type
         # The curl man page (http://curl.haxx.se/docs/manpage.html) says that
         # you have to specify a fake username when using Negotiate auth, and
@@ -79,6 +93,8 @@ module HTTPI
       end
 
       def setup_ssl_auth
+        p "Curb:setup_ssl_auth"
+        
         ssl = @request.auth.ssl
 
         unless ssl.verify_mode == :none
@@ -99,6 +115,8 @@ module HTTPI
       end
 
       def respond_with(client)
+        p "Curb:respond_with"
+        
         status, headers = parse_header_string(client.header_str)
         Response.new client.response_code, headers, client.body_str
       end
@@ -106,6 +124,8 @@ module HTTPI
       # Borrowed from Webmock's Curb adapter:
       # http://github.com/bblimke/webmock/blob/master/lib/webmock/http_lib_adapters/curb.rb
       def parse_header_string(header_string)
+        p "Curb:parse_header_string"
+        
         status, headers = nil, {}
         return [status, headers] unless header_string
 

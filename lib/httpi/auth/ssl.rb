@@ -14,6 +14,7 @@ module HTTPI
 
       # Returns whether SSL configuration is present.
       def present?
+        p "SSL:present?"
         (verify_mode == :none) || (cert && cert_key) || ca_cert_file
       rescue TypeError, Errno::ENOENT
         false
@@ -38,6 +39,8 @@ module HTTPI
 
       # Sets the cert type to validate SSL certificates PEM|DER.
       def cert_type=(type)
+        p "SSL:cert_type"
+        
         unless CERT_TYPES.include? type
           raise ArgumentError, "Invalid SSL cert type #{type.inspect}\n" +
                                "Please specify one of #{CERT_TYPES.inspect}"
@@ -48,11 +51,15 @@ module HTTPI
 
       # Returns the SSL verify mode. Defaults to <tt>:peer</tt>.
       def verify_mode
+        p "SSL:verify_mode"
+        
         @verify_mode ||= :peer
       end
 
       # Sets the SSL verify mode. Expects one of <tt>HTTPI::Auth::SSL::VERIFY_MODES</tt>.
       def verify_mode=(mode)
+        p "SSL:verify_mode="
+        
         unless VERIFY_MODES.include? mode
           raise ArgumentError, "Invalid SSL verify mode #{mode.inspect}\n" +
                                "Please specify one of #{VERIFY_MODES.inspect}"
@@ -63,11 +70,15 @@ module HTTPI
 
       # Returns the SSL version number. Defaults to <tt>nil</tt> (auto-negotiate).
       def ssl_version
+        p "SSL:ssl_version"
+        
         @ssl_version
       end
 
       # Sets the SSL version number. Expects one of <tt>HTTPI::Auth::SSL::SSL_VERSIONS</tt>.
       def ssl_version=(version)
+        p "SSL:ssl_version="
+        
         unless SSL_VERSIONS.include? version
           raise ArgumentError, "Invalid SSL version #{version.inspect}\n" +
                                "Please specify one of #{SSL_VERSIONS.inspect}"
@@ -78,6 +89,8 @@ module HTTPI
 
       # Returns an <tt>OpenSSL::X509::Certificate</tt> for the +cert_file+.
       def cert
+        p "SSL:cert"
+        
         @cert ||= (OpenSSL::X509::Certificate.new File.read(cert_file) if cert_file)
       end
 
@@ -86,6 +99,8 @@ module HTTPI
 
       # Returns an <tt>OpenSSL::X509::Certificate</tt> for the +ca_cert_file+.
       def ca_cert
+        p "SSL:ca_cert"
+        
         @ca_cert ||= OpenSSL::X509::Certificate.new File.read(ca_cert_file)
       end
 
@@ -94,6 +109,8 @@ module HTTPI
 
       # Returns an <tt>OpenSSL::PKey::RSA</tt> for the +cert_key_file+.
       def cert_key
+        p "SSL:cert_key"
+        
         @cert_key ||= (OpenSSL::PKey::RSA.new(File.read(cert_key_file), cert_key_password) if cert_key_file)
       end
 
@@ -102,6 +119,8 @@ module HTTPI
 
       # Returns the SSL verify mode as a <tt>OpenSSL::SSL::VERIFY_*</tt> constant.
       def openssl_verify_mode
+        p "SSL:openssl_verify_mode"
+        
         case verify_mode
           when :none                 then OpenSSL::SSL::VERIFY_NONE
           when :peer                 then OpenSSL::SSL::VERIFY_PEER

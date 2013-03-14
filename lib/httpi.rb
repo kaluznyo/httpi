@@ -100,36 +100,43 @@ module HTTPI
 
     # Executes an HTTP GET request.
     def get(request, adapter = nil, &block)
+      p "HTTPI::get"
       request = Request.new(request) if request.kind_of? String
       request(:get, request, adapter, &block)
     end
 
     # Executes an HTTP POST request.
     def post(*args, &block)
+      p "HTTPI::post"
       request, adapter = request_and_adapter_from(args)
       request(:post, request, adapter, &block)
     end
 
     # Executes an HTTP HEAD request.
     def head(request, adapter = nil, &block)
+      p "HTTPI::head"
       request = Request.new(request) if request.kind_of? String
       request(:head, request, adapter, &block)
     end
 
     # Executes an HTTP PUT request.
     def put(*args, &block)
+      p "HTTPI::put"
       request, adapter = request_and_adapter_from(args)
       request(:put, request, adapter, &block)
     end
 
     # Executes an HTTP DELETE request.
     def delete(request, adapter = nil, &block)
+      p "HTTPI::delete"
       request = Request.new(request) if request.kind_of? String
       request(:delete, request, adapter, &block)
     end
 
     # Executes an HTTP request for the given +method+.
     def request(method, request, adapter = nil)
+      p "HTTPI::request"
+      
       adapter_class = load_adapter(adapter, request)
 
       yield adapter_class.client if block_given?
@@ -140,6 +147,8 @@ module HTTPI
 
     # Shortcut for setting the default adapter to use.
     def adapter=(adapter)
+      p "HTTPI::adapter="
+      
       Adapter.use = adapter
     end
 
@@ -148,6 +157,8 @@ module HTTPI
 
     # Returns whether to log HTTP requests. Defaults to +true+.
     def log?
+      p "HTTPI::log?"
+      
       @log != false
     end
 
@@ -156,6 +167,8 @@ module HTTPI
 
     # Returns the logger. Defaults to an instance of +Logger+ writing to STDOUT.
     def logger
+      p "HTTPI::logger"
+      
       @logger ||= ::Logger.new($stdout)
     end
 
@@ -164,16 +177,22 @@ module HTTPI
 
     # Returns the log level. Defaults to :debug.
     def log_level
+      p "HTTPI::log_level"
+      
       @log_level ||= DEFAULT_LOG_LEVEL
     end
 
     # Logs a given +message+.
     def log(message)
+      p "HTTPI::log"
+      
       logger.send(log_level, message) if log?
     end
 
     # Reset the default config.
     def reset_config!
+      p "HTTPI::reset_config!"
+      
       @log = nil
       @logger = nil
       @log_level = nil
@@ -182,15 +201,21 @@ module HTTPI
     private
 
     def request_and_adapter_from(args)
+      p "HTTPI::request_and_adapter_from"
+      
       return args if args[0].kind_of? Request
       [Request.new(:url => args[0], :body => args[1]), args[2]]
     end
 
     def load_adapter(adapter, request)
+      p "HTTPI::load_adapter"
+      
       Adapter.load(adapter).new(request)
     end
 
     def log_request(method, request, adapter)
+      p "HTTPI::log_request"
+      
       log("HTTPI #{method.to_s.upcase} request to #{request.url.host} (#{adapter})")
     end
 
